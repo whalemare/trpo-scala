@@ -72,9 +72,6 @@ class LinkedDequeTest extends FlatSpec {
     linked.addLast(60)
     linked.addLast(50)
     linked.addLast(70)
-//    linked.sort((left, right) => {
-//      left.compareTo(right)
-//    })
     linked.sort({ (left, right) =>
       left.compareTo(right)
     })
