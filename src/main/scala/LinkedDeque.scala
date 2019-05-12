@@ -100,26 +100,26 @@ class LinkedDeque[Item] extends Iterable[Item] {
     s.toString
   }
 
-  private def sortedMerge(a: Node[Int], b: Node[Int]): Node[Int] = {
-    var result: Node[Int] = null
-    /* Base cases */ if (a == null) return b
+  private def sortedMerge(a: Node[Item], b: Node[Item], comparator: (Item, Item) => Int): Node[Item] = {
+    var result: Node[Item] = null
+    if (a == null) return b
     if (b == null) return a
-    /* Pick either a or b, and recur */ if (a.item <= b.item) {
+    if (comparator(a.item, b.item) <= 0) {
       result = a
-      result.next = sortedMerge(a.next, b)
+      result.next = sortedMerge(a.next, b, comparator)
     }
     else {
       result = b
-      result.next = sortedMerge(a, b.next)
+      result.next = sortedMerge(a, b.next, comparator)
     }
     result
   }
 
-  def sort(): Unit = {
-    mergeSort(mHead.asInstanceOf[Node[Int]])
+  def sort(comparator: (Item, Item) => Int): Unit = {
+    mergeSort(mHead, comparator)
   }
 
-  private def mergeSort(h: Node[Int]): Node[Int] = { // Base case : if head is null
+  private def mergeSort(h: Node[Item], comparator: (Item, Item) => Int): Node[Item] = { // Base case : if head is null
     if (h == null || h.next == null) return h
     // get the middle of the list
     val middle = getMiddle(h)
@@ -127,16 +127,16 @@ class LinkedDeque[Item] extends Iterable[Item] {
     // set the next of middle node to null
     middle.next = null
     // Apply mergeSort on left list
-    val left = mergeSort(h)
+    val left = mergeSort(h, comparator)
     // Apply mergeSort on right list
-    val right = mergeSort(nextofmiddle)
+    val right = mergeSort(nextofmiddle, comparator)
     // Merge the left and right lists
-    val sortedlist = sortedMerge(left, right)
+    val sortedlist = sortedMerge(left, right, comparator)
     sortedlist
   }
 
   // Utility function to get the middle of the linked list
-  private def getMiddle(h: Node[Int]): Node[Int] = { // Base case
+  private def getMiddle(h: Node[Item]): Node[Item] = { // Base case
     if (h == null) return h
     var fastptr = h.next
     var slowptr = h

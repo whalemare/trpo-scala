@@ -66,15 +66,18 @@ class LinkedDequeTest extends FlatSpec {
   "Items" should "be sorted" in {
     val linked = new LinkedDeque[Int]()
     linked.addLast(20)
-    linked.addLast(10)
+    linked.addLast(0)
     linked.addLast(40)
     linked.addLast(30)
     linked.addLast(60)
     linked.addLast(50)
+    linked.addLast(70)
 //    linked.sort((left, right) => {
 //      left.compareTo(right)
 //    })
-    linked.sort()
+    linked.sort({ (left, right) =>
+      left.compareTo(right)
+    })
     println(linked.toString)
   }
 }
