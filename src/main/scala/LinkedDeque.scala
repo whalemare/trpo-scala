@@ -6,7 +6,7 @@ import com.sun.istack.internal.Nullable
 
 class LinkedDeque[Item] extends Iterable[Item] {
 
-  private case class Node[T](item: T, @Nullable var next: Node[T])
+  case class Node[T](item: T, @Nullable var next: Node[T])
 
   var mSize: Int = 0
 
@@ -100,68 +100,63 @@ class LinkedDeque[Item] extends Iterable[Item] {
     s.toString
   }
 
-  def sort(predicate: (Item, Item) => Int): LinkedDeque[Item] = {
-    mHead = mergeSort(predicate, mHead)
-    return this
-  }
-
-  private def sortedMerge(predicate: (Item, Item) => Int,
-                  left: Node[Item],
-                  right: Node[Item]): Node[Item] = {
-    var result: Node[Item] = null
-    if (left == null) return right
-    if (right == null) return left
-
-    if (predicate(left.item, right.item) <= 0) {
-      result = left
-      result.next = sortedMerge(predicate, left.next, right)
-    } else {
-      result = right
-      result.next = sortedMerge(predicate, left, right.next)
+  private def sortedMerge(a: Node[Int], b: Node[Int]): Node[Int] = {
+    var result: Node[Int] = null
+    /* Base cases */ if (a == null) return b
+    if (b == null) return a
+    /* Pick either a or b, and recur */ if (a.item <= b.item) {
+      result = a
+      result.next = sortedMerge(a.next, b)
     }
-    return result
+    else {
+      result = b
+      result.next = sortedMerge(a, b.next)
+    }
+    result
   }
 
-  /**
-    *
-    * @param predicate 0 is equal, 1 is bigger, -1 is lower
-    * @return
-    */
-  private def mergeSort(predicate: (Item, Item) => Int, from: Node[Item]): Node[Item] = {
-    if (from == null || from.next == null) return from
+  def sort(): Unit = {
+    mergeSort(mHead.asInstanceOf[Node[Int]])
+  }
 
-    val middle = getMiddle()
-    val middleNext = middle.next
-
+  private def mergeSort(h: Node[Int]): Node[Int] = { // Base case : if head is null
+    if (h == null || h.next == null) return h
+    // get the middle of the list
+    val middle = getMiddle(h)
+    val nextofmiddle = middle.next
+    // set the next of middle node to null
     middle.next = null
-    val left = mergeSort(predicate, from)
-    val right = mergeSort(predicate, middleNext)
-
-    return sortedMerge(predicate, left, right)
+    // Apply mergeSort on left list
+    val left = mergeSort(h)
+    // Apply mergeSort on right list
+    val right = mergeSort(nextofmiddle)
+    // Merge the left and right lists
+    val sortedlist = sortedMerge(left, right)
+    sortedlist
   }
 
-  @Nullable
-  private def getMiddle(): Node[Item] = {
-    if (mHead == null) return mHead
-
-    var fastPointer = mHead.next
-    var slowPointer = mHead
-
-    // Move fastPointer by two and slow ptr by one
-    // Finally slowPointer will point to middle node
-    while (fastPointer != null) {
-      fastPointer = fastPointer.next
-      if (fastPointer != null) {
-        slowPointer = slowPointer.next
-        fastPointer = fastPointer.next
+  // Utility function to get the middle of the linked list
+  private def getMiddle(h: Node[Int]): Node[Int] = { // Base case
+    if (h == null) return h
+    var fastptr = h.next
+    var slowptr = h
+    // Move fastptr by two and slow ptr by one
+    // Finally slowptr will point to middle node
+    while ( {
+      fastptr != null
+    }) {
+      fastptr = fastptr.next
+      if (fastptr != null) {
+        slowptr = slowptr.next
+        fastptr = fastptr.next
       }
     }
-    return slowPointer
+    slowptr
   }
 
-  override def iterator: Iterator[Item] = new ListIterator(mHead)
+  override def iterator = new ListIterator(mHead)
 
-  private class ListIterator(var current: Node[Item]) extends Iterator[Item] {
+  class ListIterator(var current: Node[Item]) extends Iterator[Item] {
     override def hasNext: Boolean = current != null
 
     override def next: Item = {
