@@ -1,5 +1,6 @@
 import java.util
-import java.util.NoSuchElementException
+import java.util.{Collections, NoSuchElementException}
+import java.util.function.Predicate
 
 import com.sun.istack.internal.Nullable
 
@@ -97,6 +98,65 @@ class LinkedDeque[Item] extends Iterable[Item] {
       skipped = true
     }
     s.toString
+  }
+
+  def sort(predicate: (Item, Item) => Int): LinkedDeque[Item] = {
+    mHead = mergeSort(predicate, mHead)
+    return this
+  }
+
+  private def sortedMerge(predicate: (Item, Item) => Int,
+                  left: Node[Item],
+                  right: Node[Item]): Node[Item] = {
+    var result: Node[Item] = null
+    if (left == null) return right
+    if (right == null) return left
+
+    if (predicate(left.item, right.item) <= 0) {
+      result = left
+      result.next = sortedMerge(predicate, left.next, right)
+    } else {
+      result = right
+      result.next = sortedMerge(predicate, left, right.next)
+    }
+    return result
+  }
+
+  /**
+    *
+    * @param predicate 0 is equal, 1 is bigger, -1 is lower
+    * @return
+    */
+  private def mergeSort(predicate: (Item, Item) => Int, from: Node[Item]): Node[Item] = {
+    if (from == null || from.next == null) return from
+
+    val middle = getMiddle()
+    val middleNext = middle.next
+
+    middle.next = null
+    val left = mergeSort(predicate, from)
+    val right = mergeSort(predicate, middleNext)
+
+    return sortedMerge(predicate, left, right)
+  }
+
+  @Nullable
+  private def getMiddle(): Node[Item] = {
+    if (mHead == null) return mHead
+
+    var fastPointer = mHead.next
+    var slowPointer = mHead
+
+    // Move fastPointer by two and slow ptr by one
+    // Finally slowPointer will point to middle node
+    while (fastPointer != null) {
+      fastPointer = fastPointer.next
+      if (fastPointer != null) {
+        slowPointer = slowPointer.next
+        fastPointer = fastPointer.next
+      }
+    }
+    return slowPointer
   }
 
   override def iterator: Iterator[Item] = new ListIterator(mHead)
